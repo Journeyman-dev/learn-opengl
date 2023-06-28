@@ -24,5 +24,3 @@ If you want to build the project without opening it in an IDE, you can use this 
     cmake --build ./build/ --config Debug
 
 If you want to add new source files, add them to the `src` folder and add their file names to the `target_sources` command in the `src/CMakeLists.txt` file. If you do this, you may need to delete the build folder and re-generate the project. If you want to add include files, just add them to the `src` folder and you are good to go.
-If you want to simplify this process, I recommend that you use the "CMake Tools" in Visual Studio Code. It comes as a part of the "C/C++ Extension Pack" (<https://marketplace.visualstudio.com/items?itemName=ms-vscode.cpptools-extension-pack>), along with everything else you need.
-
