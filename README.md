@@ -8,7 +8,7 @@ SPDX-License-Identifier: CC-BY-4.0
 
 [![REUSE status](https://api.reuse.software/badge/git.fsfe.org/reuse/api)](https://api.reuse.software/info/git.fsfe.org/reuse/api)
 
-This repository contains code examples that follow the tutorial from <https://learnopengl.com/> by [Joey de Vries](https://twitter.com/JoeyDeVriez). The code here is not official, but was created by me (Daniel Aimé Valcour). The branches of this repository shows the state of my code after completing each page of the tutorial.
+This repository contains code examples that follow the tutorial from <https://learnopengl.com/> by [Joey de Vries](https://twitter.com/JoeyDeVriez). The code here is not official, but was created by me (Daniel Aimé Valcour). The branches of this repository show the state of my code after completing each page of the tutorial.
 
 # How To Use
 Instead of using Visual Studio, the project is defined in a cross platform manner using CMake. If you wish to generate it yourself, you need to run the following bash commands:
