@@ -38,7 +38,7 @@ include(FetchContent)
 FetchContent_Declare(
     glm
     GIT_REPOSITORY			https://github.com/g-truc/glm
-    GIT_TAG					"0.9.9.8"
+    GIT_TAG					0.9.9.8
     FIND_PACKAGE_ARGS		"0.9.9.8" NAMES glm CONFIG
 )
 FetchContent_MakeAvailable(glm)
