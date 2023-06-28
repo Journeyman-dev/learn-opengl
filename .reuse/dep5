@@ -1,0 +1,10 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Upstream-Name: Learn OpenGL
+Upstream-Contact: Daniel Aimé Valcour <fosssweeper@gmail.com>
+Source: https://www.github.com/Journeyman-dev/learn-opengl
+
+# Sample paragraph, commented out:
+#
+# Files: src/*
+# Copyright: $YEAR $NAME <$CONTACT>
+# License: ...
