@@ -2,6 +2,8 @@
 //
 // SPDX-License-Identifier: CC-BY-4.0
 
+#pragma once
+
 #include <glad/glad.h>
 #include <filesystem>
 #include <string>
