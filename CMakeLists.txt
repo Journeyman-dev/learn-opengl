@@ -12,6 +12,22 @@ add_executable(${PROJECT_NAME} "")
 
 add_subdirectory(src)
 
+set(OGL_CONTENT_FILES
+    "shader.fs.glsl"
+    "shader.vs.glsl"
+    # add more content files here...
+)
+list(
+    TRANSFORM OGL_CONTENT_FILES
+    PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/content/"
+)
+
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        ${OGL_CONTENT_FILES}
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>
+)
+
 include(FetchContent)
 FetchContent_Declare(
     glfw
