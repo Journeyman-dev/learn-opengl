@@ -76,21 +76,6 @@ int main()
 
   glViewport(0, 0, initial_width, initial_height);
 
-  GLfloat vertices[] =
-    {
-        // positions          // colors           // texture coords
-         0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // top right
-         0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, // bottom right
-        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // bottom left
-        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  // top left
-    };
-
-  GLuint indices[] =
-    {
-        0, 1, 3, // first triangle
-        1, 2, 3  // second triangle
-    };
-
   auto read_file_text =
     [](const std::filesystem::path& path)
     {
@@ -160,6 +145,21 @@ int main()
 
   glDeleteShader(vertex_shader);
   glDeleteShader(fragment_shader);
+
+  GLfloat vertices[] =
+    {
+        // positions          // colors           // texture coords
+         0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // top right
+         0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, // bottom right
+        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // bottom left
+        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  // top left
+    };
+
+  GLuint indices[] =
+    {
+        0, 1, 3, // first triangle
+        1, 2, 3  // second triangle
+    };
 
   GLuint vbo, vao, ebo;
   glGenVertexArrays(1, &vao);
