@@ -107,7 +107,6 @@ int main()
     [](GLuint gl_shader, std::string_view name)
     {
       GLint success;
-
       glGetShaderiv(gl_shader, GL_COMPILE_STATUS, &success);
       if (success == GL_FALSE)
       {
