@@ -2,7 +2,6 @@
 //
 // SPDX-License-Identifier: CC-BY-4.0
 
-#include <Shader.hpp>
 #include <stb_image.h>
 
 #include <glad/glad.h>
@@ -10,6 +9,10 @@
 #include <GLFW/glfw3.h>
 
 #include <iostream>
+#include <fstream>
+#include <sstream>
+#include <utility>
+#include <filesystem>
 
 int main()
 {
@@ -73,9 +76,6 @@ int main()
 
   glViewport(0, 0, initial_width, initial_height);
 
-  ogl::Shader shader;
-  shader.Load("shader.vs.glsl", "shader.fs.glsl");
-
   GLfloat vertices[] =
     {
         // positions          // colors           // texture coords
@@ -90,6 +90,76 @@ int main()
         0, 1, 3, // first triangle
         1, 2, 3  // second triangle
     };
+
+  auto read_file_text =
+    [](const std::filesystem::path& path)
+    {
+      try
+      {
+          std::ifstream file;
+          file.open(path);
+          std::stringstream stream;
+          stream << file.rdbuf();
+          file.close();
+          return stream.str();
+      }
+      catch(std::ifstream::failure& e)
+      {
+          std::cout << "failed to read file \"" << path << "\": " << e.what();
+      }
+      std::unreachable();
+    };
+
+  GLuint vertex_shader, fragment_shader, shader_program;
+
+  auto vertex_source = read_file_text("shader.vs.glsl");
+  vertex_shader = glCreateShader(GL_VERTEX_SHADER);
+  GLchar* vertex_source_ptr = vertex_source.data();
+  glShaderSource(vertex_shader, 1, &vertex_source_ptr, NULL);
+  glCompileShader(vertex_shader);
+
+  const auto check_compile =
+    [](GLuint gl_shader, std::string_view name)
+    {
+      GLint success;
+
+      glGetShaderiv(gl_shader, GL_COMPILE_STATUS, &success);
+      if (success == GL_FALSE)
+      {
+        GLchar info_log[512];
+        glGetShaderInfoLog(gl_shader, 512, NULL, info_log);
+        std::cout << name << " shader compile error:\n" << info_log << std::endl;
+      }
+    };
+
+  check_compile(vertex_shader, "vertex");
+
+  fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
+  auto fragment_source = read_file_text("shader.fs.glsl");
+  GLchar* fragment_source_ptr = fragment_source.data();
+  glShaderSource(fragment_shader, 1, &fragment_source_ptr, NULL);
+  glCompileShader(fragment_shader);
+
+  check_compile(fragment_shader, "fragment");
+
+  shader_program = glCreateProgram();
+  glAttachShader(shader_program, vertex_shader);
+  glAttachShader(shader_program, fragment_shader);
+  glLinkProgram(shader_program);
+
+  {
+    GLint success;
+    glGetProgramiv(shader_program, GL_LINK_STATUS, &success);
+    if (success == GL_FALSE)
+    {
+      GLchar info_log[512];
+      glGetProgramInfoLog(shader_program, 512, NULL, info_log);
+      std::cout << "link failure:\n" << info_log << std::endl;
+    }
+  }
+
+  glDeleteShader(vertex_shader);
+  glDeleteShader(fragment_shader);
 
   GLuint vbo, vao, ebo;
   glGenVertexArrays(1, &vao);
@@ -152,9 +222,21 @@ int main()
   }
   stbi_image_free(data);
 
-  shader.Use();
-  shader.SetInt("texture1", 0);
-  shader.SetInt("texture2", 1);
+  glUseProgram(shader_program);
+  glUniform1i(
+    glGetUniformLocation(
+      shader_program,
+      "texture1"
+    ),
+    0
+  );
+  glUniform1i(
+    glGetUniformLocation(
+      shader_program,
+      "texture2"
+    ),
+    1
+  );
 
   while(!glfwWindowShouldClose(window))
   {
@@ -168,7 +250,7 @@ int main()
     glActiveTexture(GL_TEXTURE1);
     glBindTexture(GL_TEXTURE_2D, texture2);
 
-    shader.Use();
+    glUseProgram(shader_program);
     glBindVertexArray(vao);
     glDrawElements(GL_TRIANGLES, sizeof(indices), GL_UNSIGNED_INT, 0);
 
@@ -177,7 +259,7 @@ int main()
 
   glDeleteVertexArrays(1, &vao);
   glDeleteBuffers(1, &vbo);
-  shader.Unload();
+  glDeleteProgram(shader_program);
   glDeleteTextures(1, &texture1);
   glDeleteTextures(1, &texture2);
 

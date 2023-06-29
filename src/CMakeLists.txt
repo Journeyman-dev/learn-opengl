@@ -6,7 +6,6 @@ target_sources(
 	${PROJECT_NAME}
 	PRIVATE
 		"main.cpp"
-		"Shader.cpp"
 		"stb_impl.cpp"
 		# If you want more source files, add them here...
 )
