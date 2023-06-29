@@ -16,7 +16,7 @@ Instead of using Visual Studio, the project is defined in a cross platform manne
     git clone https://github.com/Journeyman-dev/learn-opengl
     cd learn-opengl
     # replace the -G option with the generator you want
-    cmake -S . -B ./build/ -G "Visual Studio 17 2022" 
+    cmake -S . -B ./build/ -G "Visual Studio 17 2022"
     # You can find the project in the folder named "build"
 
 If you want to build the project without opening it in an IDE, you can use this command:
