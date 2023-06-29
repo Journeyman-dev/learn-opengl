@@ -3,6 +3,7 @@
 // SPDX-License-Identifier: CC-BY-4.0
 
 #include <Shader.hpp>
+#include <stb_image.h>
 
 #include <glad/glad.h>
 #define GLFW_INCLUDE_NONE
@@ -77,24 +78,83 @@ int main()
 
   GLfloat vertices[] =
     {
-         0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,  // bottom right
-        -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,  // bottom left
-         0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f   // top
+        // positions          // colors           // texture coords
+         0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // top right
+         0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, // bottom right
+        -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // bottom left
+        -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  // top left
     };
 
-  GLuint vbo, vao;
+  GLuint indices[] =
+    {
+        0, 1, 3, // first triangle
+        1, 2, 3  // second triangle
+    };
+
+  GLuint vbo, vao, ebo;
   glGenVertexArrays(1, &vao);
   glGenBuffers(1, &vbo);
+  glGenBuffers(1, &ebo);
   glBindVertexArray(vao);
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+  // position attribute
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
   glEnableVertexAttribArray(0);
-  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+  // color attribute
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
   glEnableVertexAttribArray(1);
-  // This will not undo the vbo being bound to the vao.
+  // texture coord attribute
+  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+  glEnableVertexAttribArray(2);
   glBindBuffer(GL_ARRAY_BUFFER, 0);
   glBindVertexArray(0);
+
+  GLuint texture1, texture2;
+  glGenTextures(1, &texture1);
+  glBindTexture(GL_TEXTURE_2D, texture1);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  int width, height, channels;
+  stbi_set_flip_vertically_on_load(true);
+  stbi_uc* data = stbi_load("container.jpg", &width, &height, &channels, 0);
+  if (data)
+  {
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+      glGenerateMipmap(GL_TEXTURE_2D);
+  }
+  else
+  {
+      std::cout << "failed to load texture" << std::endl;
+  }
+  stbi_image_free(data);
+
+  glGenTextures(1, &texture2);
+  glBindTexture(GL_TEXTURE_2D, texture2);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  stbi_set_flip_vertically_on_load(true);
+  data = stbi_load("awesomeface.png", &width, &height, &channels, 0);
+  if (data)
+  {
+      glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+      glGenerateMipmap(GL_TEXTURE_2D);
+  }
+  else
+  {
+      std::cout << "failed to load texture" << std::endl;
+  }
+  stbi_image_free(data);
+
+  shader.Use();
+  shader.SetInt("texture1", 0);
+  shader.SetInt("texture2", 1);
 
   while(!glfwWindowShouldClose(window))
   {
@@ -103,11 +163,14 @@ int main()
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, texture1);
+    glActiveTexture(GL_TEXTURE1);
+    glBindTexture(GL_TEXTURE_2D, texture2);
+
     shader.Use();
     glBindVertexArray(vao);
-    glDrawArrays(GL_TRIANGLES, 0, 3);
-    glBindVertexArray(GL_NONE);
-    ogl::Shader::UseNone();
+    glDrawElements(GL_TRIANGLES, sizeof(indices), GL_UNSIGNED_INT, 0);
 
     glfwSwapBuffers(window);
   }
@@ -115,6 +178,8 @@ int main()
   glDeleteVertexArrays(1, &vao);
   glDeleteBuffers(1, &vbo);
   shader.Unload();
+  glDeleteTextures(1, &texture1);
+  glDeleteTextures(1, &texture2);
 
   glfwTerminate();
   return 0;

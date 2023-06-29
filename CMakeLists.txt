@@ -13,6 +13,8 @@ add_executable(${PROJECT_NAME} "")
 add_subdirectory(src)
 
 set(OGL_CONTENT_FILES
+    "awesomeface.png"
+    "container.jpg"
     "shader.fs.glsl"
     "shader.vs.glsl"
     # add more content files here...
