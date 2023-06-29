@@ -21,7 +21,6 @@ list(
     TRANSFORM OGL_CONTENT_FILES
     PREPEND "${CMAKE_CURRENT_SOURCE_DIR}/content/"
 )
-
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
         ${OGL_CONTENT_FILES}
